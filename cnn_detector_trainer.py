@@ -93,6 +93,24 @@ class SimpleCNN(nn.Module):
     def __init__(self):
         super(SimpleCNN, self).__init__()
         self.conv = nn.Conv2d(1, 1, kernel_size=3, bias=False)
+        
+        # 将 3 通道输入（如 RGB 图像）转换为 16 个特征图。
+        # 使用 3x3 卷积核。由于设置了 padding=1，输出的特征图尺寸（宽、高）与输入保持一致。
+        #self.conv = nn.Conv2d(3, 16, 3, padding=1)
+        # 对 16 个特征通道进行批标准化，
+        # 通过规范化数据分布来加速模型收敛并提高训练稳定性。
+        #self.norm2d = nn.BatchNorm2d(1)
+        # 引入非线性变换（将所有负值置为 0），
+        # 让网络能够学习复杂的特征。
+        #self.relu = nn.ReLU()
+        # 自适应平均池化。无论输入的图像尺寸是多少（如 32x32 或 224x224），它都会强制将每个特征图压缩为 1x1 大小。
+        # 这使得模型具有“平移不变性”，且不再受限于输入图像的固定尺寸。
+        #self.pool2d = nn.AdaptiveAvgPool2d(1)
+        # 将多维特征图展平。池化后的形状为 (batch_size, 16, 1, 1)，展平后变为 (batch_size, 16)，方便接入全连接层。
+        #self.flatten = nn.Flatten()
+        # 全连接层（输出层）。将 16 个特征映射到 10 个输出单元（如 10 个类别的分类任务）。
+        #self.fc = nn.Linear(16, 10)
+
 
     def forward(self, x):
         return self.conv(x)
