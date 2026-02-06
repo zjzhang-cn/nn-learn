@@ -28,7 +28,12 @@ python backprop_demo.py
   - 定义3×3卷积核，使用Adam优化器进行100个epoch的训练
   - 在关键epoch（第1-10, 20, 30, ...100个）处捕获卷积核权重和输出特征图
   - 使用MSELoss作为损失函数，优化卷积核参数
-  - 包含对比测试：用非十字形图案测试训练好的检测器
+  - 包含5个对比测试，观察检测器对不同图案的响应：
+    1. **Mixed Pattern**（混合图案）：随机分布，参考基准
+    2. **Vertical Line**（竖直线条）：弱响应
+    3. **Horizontal Line**（水平线条）：弱响应
+    4. **Diagonal**（对角线）：弱响应
+    5. **Perfect Cross**（完美十字）：强响应，最优匹配目标
   - 可视化逻辑封装为 `plot_epoch_snapshot()` 与 `plot_test_snapshot()` 便于复用
   - 生成可视化图表，展示：
     - 卷积核权重的演变（热力图展示）
@@ -59,9 +64,10 @@ python cnn_detector_trainer.py
   - 最终形成以中心为高峰的特征响应
   
 - **右列（TEST部分）**: 
-  - TEST Input 显示一个非十字形的对比图案
-  - TEST Output 显示训练好的检测器对这个图案的响应较弱
-  - 说明网络成功学习了十字形的特定特征，而非泛化特征
+  - 包含5个不同图案的检测结果
+  - Mixed Pattern 和 Perfect Cross 显示较强的中心响应
+  - Vertical/Horizontal/Diagonal 线条显示边界或泛化响应
+  - 说明网络成功学习了十字形的特定特征，具有一定的特征判别性
 
 ## 学习要点
 

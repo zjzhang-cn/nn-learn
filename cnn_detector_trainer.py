@@ -49,22 +49,24 @@ def plot_epoch_snapshot(fig, rows, cols, plot_idx, epoch, model, output, loss):
             )
 
 
-def plot_test_snapshot(fig, rows, cols, num_plots, input_img, output_test):
+def plot_test_snapshot(fig, rows, cols, num_plots, input_img, output_test, test_idx=1, total_tests=1):
     # 计算测试输出的行列位置
-    test_col = (num_plots - 1) % cols + 1
-    test_row_base = ((num_plots - 1) // cols) * 2
+    # 多个测试从第 num_plots - total_tests + 1 开始依次排列
+    plot_position = num_plots - total_tests + test_idx
+    test_col = (plot_position - 1) % cols + 1
+    test_row_base = ((plot_position - 1) // cols) * 2
 
     # TEST Input
     ax_t_in = fig.add_subplot(rows, cols, test_row_base * cols + test_col)
     ax_t_in.imshow(input_img.squeeze().numpy(), cmap="gray")
-    ax_t_in.set_title("TEST Input", color="red")
+    ax_t_in.set_title(f"Test{test_idx} Input", color="red")
     ax_t_in.axis("off")
 
     # TEST Output 并标注数值
     ax_t_out = fig.add_subplot(rows, cols, (test_row_base + 1) * cols + test_col)
     test_out_data = output_test.squeeze().numpy()
     ax_t_out.imshow(test_out_data, cmap="magma", vmin=0, vmax=10)
-    ax_t_out.set_title(f"TEST Output\nMax: {output_test.max():.2f}", color="red")
+    ax_t_out.set_title(f"Test{test_idx} Output\nMax: {output_test.max():.2f}", color="red")
     ax_t_out.axis("off")
     for i in range(3):
         for j in range(3):
@@ -126,7 +128,8 @@ target = torch.tensor(
 
 # 3. 定义观察点,每10个epoch记录一次，前10个epoch都记录
 display_epochs = list(range(1, 11)) + list(range(20, 101, 10))
-num_plots = len(display_epochs) + 1
+num_test_cases = 5  # 5个测试用例
+num_plots = len(display_epochs) + num_test_cases
 cols = 5
 rows = math.ceil(num_plots / cols) * 2
 fig = plt.figure(figsize=(20, rows * 3.5))  # 稍微加大画布以容纳文字
@@ -150,19 +153,70 @@ for epoch in range(1, 101):
         plot_idx += 1
 
 # 4. 多个十字测试
-non_cross_img = torch.tensor(
-    [[[
-        [0, 1, 0, 0, 0],
-        [1, 1, 1, 0, 0],
-        [0, 1, 0, 1, 0],
-        [0, 0, 1, 1, 1],
-        [0, 0, 0, 1, 0],
-    ]]], dtype=torch.float32)
-# 测试输入并标注数值
-with torch.no_grad():
-    output_test = model(non_cross_img)
-print("TEST Output:\n", output_test.squeeze().numpy())
-plot_test_snapshot(fig, rows, cols, num_plots, non_cross_img, output_test)
+test_cases = [
+    # Test 1: 非十字形图案（之前的测试）
+    {
+        "name": "Mixed Pattern",
+        "img": torch.tensor([[[
+            [0, 1, 0, 0, 0],
+            [1, 1, 1, 0, 0],
+            [0, 1, 0, 1, 0],
+            [0, 0, 1, 1, 1],
+            [0, 0, 0, 1, 0],
+        ]]], dtype=torch.float32)
+    },
+    # Test 2: 竖直线条（弱响应）
+    {
+        "name": "Vertical Line",
+        "img": torch.tensor([[[
+            [0, 1, 0, 0, 0],
+            [0, 1, 0, 0, 0],
+            [0, 1, 0, 0, 0],
+            [0, 1, 0, 0, 0],
+            [0, 1, 0, 0, 0],
+        ]]], dtype=torch.float32)
+    },
+    # Test 3: 水平线条（弱响应）
+    {
+        "name": "Horizontal Line",
+        "img": torch.tensor([[[
+            [0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0],
+            [1, 1, 1, 1, 1],
+            [0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0],
+        ]]], dtype=torch.float32)
+    },
+    # Test 4: 对角线条（弱响应）
+    {
+        "name": "Diagonal",
+        "img": torch.tensor([[[
+            [1, 0, 0, 0, 0],
+            [0, 1, 0, 0, 0],
+            [0, 0, 1, 0, 0],
+            [0, 0, 0, 1, 0],
+            [0, 0, 0, 0, 1],
+        ]]], dtype=torch.float32)
+    },
+    # Test 5: 完美十字形（强响应）
+    {
+        "name": "Perfect Cross",
+        "img": torch.tensor([[[
+            [0, 0, 1, 0, 0],
+            [0, 0, 1, 0, 0],
+            [1, 1, 1, 1, 1],
+            [0, 0, 1, 0, 0],
+            [0, 0, 1, 0, 0],
+        ]]], dtype=torch.float32)
+    },
+]
+
+# 执行所有测试
+for test_idx, test_case in enumerate(test_cases, 1):
+    with torch.no_grad():
+        output_test = model(test_case["img"])
+    print(f"{test_case['name']} Output:\n", output_test.squeeze().numpy())
+    plot_test_snapshot(fig, rows, cols, num_plots, test_case["img"], output_test, test_idx, len(test_cases))
 
 plt.tight_layout()
 plt.suptitle("CNN Evolution : Backpropagation Optimization and Feature Extraction", fontsize=20, y=1.0)
