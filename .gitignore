@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# IDE/Editor
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Model checkpoints / artifacts
+*.pth
+*.pt
+*.onnx
+*.pb
+*.ckpt
+
+# Logs
+*.log
+
+# Data
+mnist/data/**/raw/
+mnist/data/**/processed/
+mnist/data/**/tmp/
+
+# Graphviz outputs
+*.dot
+*.png
+*.svg
+!/images/*.png
