@@ -6,25 +6,24 @@ import math
 
 # 1. 数据准备
 input_img = torch.tensor(
-    [
-        [
-            [
-                [0, 0, 1, 0, 0],
-                [0, 0, 1, 0, 0],
-                [1, 1, 1, 1, 1],
-                [0, 0, 1, 0, 0],
-                [0, 0, 1, 0, 0],
-            ]
-        ]
-    ],
-    dtype=torch.float32,
-)
+    [[[
+        [0, 0, 1, 0, 0],
+        [0, 0, 1, 0, 0],
+        [1, 1, 1, 1, 1],
+        [0, 0, 1, 0, 0],
+        [0, 0, 1, 0, 0],
+    ]]], dtype=torch.float32)
 
 # 2. 模型与目标
 conv = nn.Conv2d(1, 1, kernel_size=3, bias=False)
 criterion = nn.MSELoss()
 optimizer = optim.Adam(conv.parameters(), lr=0.1)
-target = torch.tensor([[[[0, 0, 0], [0, 10, 0], [0, 0, 0]]]], dtype=torch.float32)
+target = torch.tensor(
+    [[[
+        [0, 0, 0],
+        [0, 10, 0],
+        [0, 0, 0]
+    ]]], dtype=torch.float32)
 
 # 3. 定义观察点
 display_epochs = list(range(1, 11)) + list(range(20, 101, 10))
@@ -91,24 +90,20 @@ for epoch in range(1, 101):
 
         plot_idx += 1
 
-# 4. 多个字测试
+# 4. 多个十字测试
 non_cross_img = torch.tensor(
-    [
-        [
-            [
-                [0, 1, 0, 1, 0],
-                [1, 1, 1, 1, 1],
-                [0, 1, 0, 1, 0],
-                [0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0],
-            ]
-        ]
-    ],
-    dtype=torch.float32,
-)
+    [[[
+        [1, 0, 1, 1, 0],
+        [0, 0, 0, 1, 0],
+        [1, 0, 1, 1, 0],
+        [0, 0, 1, 1, 1],
+        [0, 0, 0, 1, 0],
+    ]]], dtype=torch.float32)
+# 测试输入并标注数值
 with torch.no_grad():
     output_test = conv(non_cross_img)
-
+print("TEST Output:\n", output_test.squeeze().numpy())
+# 计算测试输出的行列位置
 test_col = (num_plots - 1) % cols + 1
 test_row_base = ((num_plots - 1) // cols) * 2
 
@@ -140,4 +135,4 @@ plt.tight_layout()
 plt.suptitle("CNN Evolution : Backpropagation Optimization and Feature Extraction", fontsize=20, y=1.0)
 plt.subplots_adjust(top=0.95)  # 调整主标题位置
 plt.savefig("cnn_evolution_with_labels.png")
-plt.show()
+# plt.show()
