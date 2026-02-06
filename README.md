@@ -29,6 +29,7 @@ python backprop_demo.py
   - 在关键epoch（第1-10, 20, 30, ...100个）处捕获卷积核权重和输出特征图
   - 使用MSELoss作为损失函数，优化卷积核参数
   - 包含对比测试：用非十字形图案测试训练好的检测器
+  - 可视化逻辑封装为 `plot_epoch_snapshot()` 与 `plot_test_snapshot()` 便于复用
   - 生成可视化图表，展示：
     - 卷积核权重的演变（热力图展示）
     - 输出特征图的变化（包括loss值）
@@ -41,7 +42,8 @@ python cnn_detector_trainer.py
 ```
 
 **输出说明**：
-程序执行后会生成一个可视化图表文件 `cnn_evolution_with_labels.png`，展示整个训练过程。
+程序执行后会在项目根目录生成可视化图表文件 `cnn_evolution_with_labels.png`，展示整个训练过程。
+示例图片已放在 images 目录中，方便快速预览。
 
 ![CNN Evolution with Labels](images/cnn_evolution_with_labels.png)
 
